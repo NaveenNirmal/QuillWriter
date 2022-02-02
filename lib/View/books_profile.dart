@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:quilwriterfinal/Models/database.dart';
+import 'package:quilwriterfinal/Presenter/main_presenter.dart';
 import 'package:quilwriterfinal/View/add_book.dart';
 import 'package:quilwriterfinal/View/book_read.dart';
 import 'package:quilwriterfinal/View/mainscreen.dart';
@@ -18,12 +19,24 @@ class BooksProfile extends StatefulWidget {
 class _BooksProfileState extends State<BooksProfile> {
   FirebaseFirestore _db = FirebaseFirestore.instance;
   Database db = Database();
+  Presenter _presenter = Presenter();
 
   String name;
-
   bool check = true;
-
   bool sort = false;
+
+  bool connectioncheck = true;
+
+  void checkConnection() async {
+    connectioncheck = await _presenter.hasNetwork();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    checkConnection();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,16 +79,19 @@ class _BooksProfileState extends State<BooksProfile> {
                     );
                   },
                 ),
-                IconButton(
-                  icon: Icon(
-                    Icons.post_add,
-                    color: Colors.white,
-                    size: 25,
-                  ),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddBook(),
+                Visibility(
+                  visible: connectioncheck,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.post_add,
+                      color: Colors.white,
+                      size: 25,
+                    ),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddBook(),
+                      ),
                     ),
                   ),
                 ),
@@ -119,7 +135,9 @@ class _BooksProfileState extends State<BooksProfile> {
                                 ),
                               ),
                             ),
-                            FlatButton(
+                            Visibility(
+                              visible: connectioncheck,
+                              child: FlatButton(
                                 onPressed: () {
                                   Navigator.push(
                                     context,
@@ -144,7 +162,9 @@ class _BooksProfileState extends State<BooksProfile> {
                                               fontWeight: FontWeight.w600)),
                                     ),
                                   ],
-                                )),
+                                ),
+                              ),
+                            ),
 
                             /*
                             Container(
@@ -222,19 +242,18 @@ class _BooksProfileState extends State<BooksProfile> {
                                 alignment: Alignment.bottomCenter,
                                 child: StreamBuilder(
                                   stream: _db
-                                          .collection('books')
-                                          .orderBy('authorid', descending: sort)
-                                          .where('authorid',
-                                              isGreaterThanOrEqualTo:
-                                                  FirebaseAuth
-                                                      .instance.currentUser.uid
-                                                      .toString())
-                                          .where('authorid',
-                                              isLessThan: FirebaseAuth
+                                      .collection('books')
+                                      .orderBy('authorid', descending: sort)
+                                      .where('authorid',
+                                          isGreaterThanOrEqualTo: FirebaseAuth
+                                              .instance.currentUser.uid
+                                              .toString())
+                                      .where('authorid',
+                                          isLessThan: FirebaseAuth
                                                   .instance.currentUser.uid
-                                                  .toString() + 'z')
-                                          .snapshots(),
-
+                                                  .toString() +
+                                              'z')
+                                      .snapshots(),
                                   builder: (BuildContext context,
                                       AsyncSnapshot<QuerySnapshot> snapshot) {
                                     if (snapshot.data == null)
@@ -266,22 +285,45 @@ class _BooksProfileState extends State<BooksProfile> {
 
                                           return GestureDetector(
                                             onTap: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => AddBook(
-                                                    id: id,
-                                                    title: title,
-                                                    description: description,
-                                                    imgUrl: imageUrl,
-                                                    isUpdate: true,
-                                                    authorid: authorid,
-                                                    author: author,
-                                                    bookcontent: content,
-                                                    bookcategory: bookcategory,
+
+                                              if(connectioncheck==true){
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => AddBook(
+                                                      id: id,
+                                                      title: title,
+                                                      description: description,
+                                                      imgUrl: imageUrl,
+                                                      isUpdate: true,
+                                                      authorid: authorid,
+                                                      author: author,
+                                                      bookcontent: content,
+                                                      bookcategory: bookcategory,
+                                                    ),
                                                   ),
-                                                ),
-                                              );
+                                                );
+                                              }
+                                              else{
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder:
+                                                        (context) =>
+                                                        BookRead(
+                                                          title: title,
+                                                          imgUrl:
+                                                          imageUrl,
+                                                          author:
+                                                          author,
+                                                          content:
+                                                          content,
+                                                          bookid: id,
+                                                        ),
+                                                  ),
+                                                );
+                                              }
+
                                             },
                                             child: Row(
                                               children: [
@@ -322,18 +364,28 @@ class _BooksProfileState extends State<BooksProfile> {
                                                               ],
                                                             ),
                                                             child: ClipRRect(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          20),
-                                                              child:
-                                                                  Image.network(
-                                                                imageUrl,
-                                                                fit: BoxFit
-                                                                    .cover,
-                                                                height: 140.0,
-                                                              ),
-                                                            ),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            20),
+                                                                child: (connectioncheck ==
+                                                                        true)
+                                                                    ? Image
+                                                                        .network(
+                                                                        imageUrl,
+                                                                        fit: BoxFit
+                                                                            .cover,
+                                                                        height:
+                                                                            140.0,
+                                                                      )
+                                                                    : Image(
+                                                                        image: AssetImage(
+                                                                            "assets/images/bookico.png"),
+                                                                        height:
+                                                                            140.0,
+                                                                        fit: BoxFit
+                                                                            .cover,
+                                                                      )),
                                                           ),
                                                         ],
                                                       ),
@@ -388,12 +440,19 @@ class _BooksProfileState extends State<BooksProfile> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(100),
-                        child: Image(
-                          image: NetworkImage(
-                            FirebaseAuth.instance.currentUser.photoURL,
-                          ),
-                          fit: BoxFit.cover,
-                        ),
+                        child: (connectioncheck == true)
+                            ? Image.network(
+                                FirebaseAuth.instance.currentUser.photoURL,
+                                fit: BoxFit.cover,
+                                height: 140.0,
+                              )
+                            : Image(
+                                image: AssetImage(
+                                  "assets/images/blankprofile.png",
+                                ),
+                                height: 140.0,
+                                fit: BoxFit.cover,
+                              ),
                       ),
                     ),
                   )

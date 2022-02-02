@@ -266,33 +266,23 @@ class _SignupPageState extends State<SignupPage> {
                           height: 50,
                           child: FlatButton(
                             onPressed: () async {
+                              print(imgUrl);
 
-                              if (_formKey.currentState.validate()) {
-                                _update();
-
-                                mainPresenter.updateUser(fullname.text, email.text, password.text, _auth.currentUser.uid);
-
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) =>
-                                      CustomDialog(
-                                        title: "User updated successfully",
-                                        description: "User updated Successfully",
-                                        buttonText: "Okay",
-                                      ),
-                                );
-
+                              if(imgUrl!=null){
+                                if (_formKey.currentState.validate()) {
+                                  mainPresenter.update(fullname.text,email.text,password.text,imgUrl,context);
+                                  mainPresenter.updateUser(fullname.text, email.text, password.text, _auth.currentUser.uid);
+                                }
+                              }
+                              else{
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                  content: Text("Please upload profile image"),
+                                  backgroundColor: Colors.red,
+                                ));
                               }
 
 
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return BooksProfile();
-                                  },
-                                ),
-                              );
+
                             },
                             padding: EdgeInsets.all(0),
                             shape: RoundedRectangleBorder(
@@ -336,19 +326,7 @@ class _SignupPageState extends State<SignupPage> {
 
                               if (_formKey.currentState.validate()) {
                                 _register();
-
-
                               }
-
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return LoginPage();
-                                  },
-                                ),
-                              );
                             },
                             padding: EdgeInsets.all(0),
                             shape: RoundedRectangleBorder(
@@ -435,25 +413,43 @@ class _SignupPageState extends State<SignupPage> {
       print(user.uid);
       mainPresenter.insertUser(email.text, fullname.text, password.text,user.uid);
 
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return LoginPage();
+          },
+        ),
+      );
+
     } on FirebaseAuthException catch (e) {
+
+      String error=e.toString();
       if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
+        error="The password provided is too weak";
       } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
+        error="The account already exists for that email";
       }
+      else if(e.code == 'invalid-email'){
+        error="The email provided is invalid. Please enter valid email & try again.";
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(error),
+        backgroundColor: Colors.red,
+      ));
+
     } catch (e) {
-      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e.toString()),
+        backgroundColor: Colors.red,
+      ));
     }
 
   }
 
 
 
-  void _update() async {
-   await _auth.currentUser.updateDisplayName(fullname.text);
-   await _auth.currentUser.updateEmail(email.text);
-   await _auth.currentUser.updatePassword(password.text);
-  }
+
 
 
   uploadImage() async {

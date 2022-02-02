@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:quilwriterfinal/Presenter/main_presenter.dart';
 import 'package:quilwriterfinal/View/add_book.dart';
 import 'package:quilwriterfinal/View/book_read.dart';
 import 'package:quilwriterfinal/View/books_profile.dart';
@@ -21,6 +24,9 @@ class MainBookScreen extends StatefulWidget {
 }
 
 class _MainBookScreenState extends State<MainBookScreen> {
+
+
+
   FirebaseFirestore _db = FirebaseFirestore.instance;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -30,12 +36,28 @@ class _MainBookScreenState extends State<MainBookScreen> {
   bool check = true;
   bool sort = false;
 
+
+
   Widget space = MainBookScreen();
+
+  Presenter _presenter=Presenter();
 
   void logout() async {
     await FirebaseAuth.instance.signOut();
     Navigator.pushNamed(context, SplashScreen.id);
   }
+  bool connectioncheck;
+  void checkConnection() async{
+    connectioncheck=await _presenter.hasNetwork();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    checkConnection();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -459,12 +481,20 @@ class _MainBookScreenState extends State<MainBookScreen> {
                                                                 BorderRadius
                                                                     .circular(
                                                                         20),
-                                                            child:
-                                                                Image.network(
+                                                            child: (connectioncheck == true)
+                                                                ? Image.network(
                                                               imageUrl,
                                                               fit: BoxFit.cover,
                                                               height: 140.0,
-                                                            ),
+                                                            )
+                                                                : Image(
+                                                              image: AssetImage(
+                                                                "assets/images/bookico.png"
+                                                              ),
+                                                              height: 140.0,
+                                                              fit: BoxFit.cover,
+                                                            )
+
                                                           ),
                                                         ),
                                                       ],
@@ -617,3 +647,5 @@ Widget BookFetch(String hidden) {
     ),
   );
 }
+
+

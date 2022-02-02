@@ -39,6 +39,7 @@ class AddBook extends StatefulWidget {
 }
 
 class _AddBookState extends State<AddBook> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   PickedFile _image;
   bool imageLoding = false;
   String imgUrl;
@@ -54,7 +55,6 @@ class _AddBookState extends State<AddBook> {
     super.initState();
     bookTitle.text = widget.title;
     bookDescription.text = widget.description;
-
     if (widget.isUpdate == true) {
       setState(() {
         imgUrl = widget.imgUrl;
@@ -64,6 +64,7 @@ class _AddBookState extends State<AddBook> {
       });
     }
   }
+
   double _scaleFactor = 1.0;
   double _baseScaleFactor = 1.0;
 
@@ -84,379 +85,409 @@ class _AddBookState extends State<AddBook> {
           children: [
             SafeArea(
               child: Container(
-                child: Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 15.0, vertical: 12.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              Icons.arrow_back,
-                              color: Colors.black,
-                              size: 25,
-                            ),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Container(
-                          padding: EdgeInsets.only(
-                            left: 35,
-                            right: 35,
-                          ),
-                          child: GestureDetector(
-                            onScaleStart: (details) {
-                              _baseScaleFactor = _scaleFactor;
-                            },
-                            onScaleUpdate: (details) {
-                              setState(() {
-                                _scaleFactor = _baseScaleFactor * details.scale;
-                              });
-                            },
-                            child: Column(
-                              children: [
-                                Container(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      //this is a container that contain image
-                                      //when user select image from Gallery or Camera
-
-                                      Visibility(
-                                        visible: newreg,
-                                        child: Container(
-                                          margin: EdgeInsets.only(top: 20),
-                                          width: 150,
-                                          height: 150,
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(12.0),
-                                            child: (_image != null)
-                                                ? Image.file(
-                                                    File(_image.path),
-                                                    fit: BoxFit.cover,
-                                                  )
-                                                : Icon(
-                                                    Icons.image,
-                                                    size: 150,
-                                                  ),
-                                          ),
-                                        ),
-                                      ),
-
-                                      Visibility(
-                                        visible: loadup,
-                                        child: Container(
-                                          margin: EdgeInsets.only(top: 20),
-                                          width: 150,
-                                          height: 150,
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(12.0),
-                                            child: (_image != null)
-                                                ? Image.file(
-                                                    File(_image.path),
-                                                    fit: BoxFit.cover,
-                                                  )
-                                                : (widget.imgUrl != null)
-                                                    ? Image.network(
-                                                        widget.imgUrl,
-                                                        fit: BoxFit.cover,
-                                                      )
-                                                    : Icon(
-                                                        Icons.image,
-                                                        size: 150,
-                                                      ),
-                                          ),
-                                        ),
-                                      ),
-
-                                      Row(
-                                        //this is used to provide space between icons
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          //this widget is used to get image from
-                                          //Camera
-                                          IconButton(
-                                            icon: Icon(
-                                              Icons.camera_alt,
-                                              size: 30,
-                                              color: brown,
-                                            ),
-                                            onPressed: () {
-                                              uploadFromCamera();
-                                            },
-                                          ),
-                                          //this widget is used to get image from
-                                          //Gallery
-                                          IconButton(
-                                            icon: Icon(
-                                              Icons.image,
-                                              size: 28,
-                                              color: brown,
-                                            ),
-                                            onPressed: () {
-                                              uploadImage();
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 20.0,
-                                ),
-                                TextField(
-                                  controller: bookTitle,
-                                  textCapitalization: TextCapitalization.words,
-                                  decoration: InputDecoration(
-                                    labelText: "Title",
-                                    labelStyle: TextStyle(
-                                        fontFamily: "Roboto",
-                                        fontSize: 14,
-                                        color: Colors.grey.shade400),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 20.0,
-                                ),
-                                TextField(
-                                  controller: bookDescription,
-                                  textCapitalization:
-                                      TextCapitalization.sentences,
-                                  decoration: InputDecoration(
-                                    labelText: "Description",
-                                    labelStyle: TextStyle(
-                                        fontFamily: "Roboto",
-                                        fontSize: 14,
-                                        color: Colors.grey.shade400),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 20.0,
-                                ),
-                                DropdownButtonFormField<String>(
-                                  value: selectedCategory,
-                                  items: [
-                                    "Emotional",
-                                    "Love",
-                                    "Funny",
-                                    "Wishes",
-                                    "Sympathy",
-                                    "Other"
-                                  ]
-                                      .map((label) => DropdownMenuItem(
-                                            child: Text(label),
-                                            value: label,
-                                          ))
-                                      .toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedCategory = value;
-                                    });
-                                    print(selectedCategory);
-                                  },
-                                  decoration: InputDecoration(
-                                    labelText: "Category",
-                                    labelStyle: TextStyle(
-                                        fontFamily: "Roboto",
-                                        fontSize: 14,
-                                        color: Colors.grey.shade400),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Visibility(
-                      visible: newreg,
-                      child: Padding(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Container(
                         padding: EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 20,
+                            horizontal: 15.0, vertical: 12.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                Icons.arrow_back,
+                                color: Colors.black,
+                                size: 25,
+                              ),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
                         ),
-                        child: Container(
+                      ),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Container(
+                            padding: EdgeInsets.only(
+                              left: 35,
+                              right: 35,
+                            ),
+                            child: GestureDetector(
+                              onScaleStart: (details) {
+                                _baseScaleFactor = _scaleFactor;
+                              },
+                              onScaleUpdate: (details) {
+                                setState(() {
+                                  _scaleFactor = _baseScaleFactor * details.scale;
+                                });
+                              },
+                              child: Column(
+                                children: [
+                                  Container(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        //this is a container that contain image
+                                        //when user select image from Gallery or Camera
+
+                                        Visibility(
+                                          visible: newreg,
+                                          child: Container(
+                                            margin: EdgeInsets.only(top: 20),
+                                            width: 150,
+                                            height: 150,
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(12.0),
+                                              child: (_image != null)
+                                                  ? Image.file(
+                                                      File(_image.path),
+                                                      fit: BoxFit.cover,
+                                                    )
+                                                  : Icon(
+                                                      Icons.image,
+                                                      size: 150,
+                                                      color: Colors.black54,
+                                                    ),
+                                            ),
+                                          ),
+                                        ),
+
+                                        Visibility(
+                                          visible: loadup,
+                                          child: Container(
+                                            margin: EdgeInsets.only(top: 20),
+                                            width: 150,
+                                            height: 150,
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(12.0),
+                                              child: (_image != null)
+                                                  ? Image.file(
+                                                      File(_image.path),
+                                                      fit: BoxFit.cover,
+                                                    )
+                                                  : (widget.imgUrl != null)
+                                                      ? Image.network(
+                                                          widget.imgUrl,
+                                                          fit: BoxFit.cover,
+                                                        )
+                                                      : Icon(
+                                                          Icons.image,
+                                                          size: 150,
+                                                        ),
+                                            ),
+                                          ),
+                                        ),
+
+                                        Row(
+                                          //this is used to provide space between icons
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            //this widget is used to get image from
+                                            //Camera
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.camera_alt,
+                                                size: 30,
+                                                color: brown,
+                                              ),
+                                              onPressed: () {
+                                                uploadFromCamera();
+                                              },
+                                            ),
+                                            //this widget is used to get image from
+                                            //Gallery
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.image,
+                                                size: 28,
+                                                color: brown,
+                                              ),
+                                              onPressed: () {
+                                                uploadImage();
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 20.0,
+                                  ),
+                                  TextFormField(
+                                    controller: bookTitle,
+                                    validator: (String value) {
+                                      if (value.isEmpty) {
+                                        return 'Please enter book title';
+                                      }
+                                      return null;
+                                    },
+                                    textCapitalization: TextCapitalization.words,
+                                    decoration: InputDecoration(
+                                      labelText: "Title",
+                                      labelStyle: TextStyle(
+                                          fontFamily: "Roboto",
+                                          fontSize: 14,
+                                          color: Colors.grey.shade400),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 20.0,
+                                  ),
+                                  TextFormField(
+                                    controller: bookDescription,
+                                    validator: (String value) {
+                                      if (value.isEmpty) {
+                                        return 'Please enter book description';
+                                      }
+                                      return null;
+                                    },
+                                    textCapitalization:
+                                        TextCapitalization.sentences,
+                                    decoration: InputDecoration(
+                                      labelText: "Description",
+                                      labelStyle: TextStyle(
+                                          fontFamily: "Roboto",
+                                          fontSize: 14,
+                                          color: Colors.grey.shade400),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 20.0,
+                                  ),
+                                  DropdownButtonFormField<String>(
+                                    value: selectedCategory,
+                                    validator: (String value) {
+                                      if (value.isEmpty) {
+                                        return 'Please select book category';
+                                      }
+                                      return null;
+                                    },
+                                    items: [
+                                      "Emotional",
+                                      "Love",
+                                      "Funny",
+                                      "Wishes",
+                                      "Sympathy",
+                                      "Other"
+                                    ]
+                                        .map((label) => DropdownMenuItem(
+                                              child: Text(label),
+                                              value: label,
+                                            ))
+                                        .toList(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedCategory = value;
+                                      });
+                                      print(selectedCategory);
+                                    },
+                                    decoration: InputDecoration(
+                                      labelText: "Category",
+                                      labelStyle: TextStyle(
+                                          fontFamily: "Roboto",
+                                          fontSize: 14,
+                                          color: Colors.grey.shade400),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Visibility(
+                        visible: newreg,
+                        child: Padding(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 10.0, vertical: 10.0),
-                          width: 160.0,
-                          height: 60.0,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.add_box_rounded,
-                                  size: 30,
-                                  color: brown,
-                                ),
-                                SizedBox(
-                                  width: 2.0,
-                                ),
-                                Text(
-                                  "Save Book",
-                                  style: TextStyle(
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.bold,
+                            vertical: 10,
+                            horizontal: 20,
+                          ),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10.0, vertical: 10.0),
+                            width: 160.0,
+                            height: 60.0,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(10.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.add_box_rounded,
+                                    size: 30,
                                     color: brown,
                                   ),
-                                )
-                              ],
+                                  SizedBox(
+                                    width: 2.0,
+                                  ),
+                                  Text(
+                                    "Save Book",
+                                    style: TextStyle(
+                                      fontSize: 14.0,
+                                      fontWeight: FontWeight.bold,
+                                      color: brown,
+                                    ),
+                                  )
+                                ],
+                              ),
+                              onTap: () {
+                                if (_formKey.currentState.validate()) {
+                                  if (imgUrl != null) {
+                                    mainPresenter.insertBooks(
+                                        bookTitle.text,
+                                        FirebaseAuth
+                                            .instance.currentUser.displayName
+                                            .toString(),
+                                        FirebaseAuth.instance.currentUser.uid
+                                            .toString(),
+                                        imgUrl,
+                                        bookDescription.text,
+                                        selectedCategory,
+                                        context);
+                                  } else {
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(SnackBar(
+                                      content: Text("Please upload book cover"),
+                                      backgroundColor: Colors.red,
+                                    ));
+                                  }
+                                }
+                              },
                             ),
-                            onTap: () {
-                              mainPresenter.insertBooks(
-                                  bookTitle.text,
-                                  FirebaseAuth.instance.currentUser.displayName
-                                      .toString(),
-                                  FirebaseAuth.instance.currentUser.uid
-                                      .toString(),
-                                  imgUrl,
-                                  bookDescription.text,
-                                  selectedCategory,
-                                  context);
-                            },
                           ),
                         ),
                       ),
-                    ),
-                    Visibility(
-                      visible: loadup,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 10,
-                            ),
-                            child: Container(
+                      Visibility(
+                        visible: loadup,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Padding(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 10.0, vertical: 10.0),
-                              width: 160.0,
-                              height: 60.0,
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(10.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.update,
-                                      size: 30,
-                                      color: brown,
-                                    ),
-                                    SizedBox(
-                                      width: 2.0,
-                                    ),
-                                    Text(
-                                      "Update",
-                                      style: TextStyle(
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold,
-                                        color: brown,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                onTap: () {
-                                  mainPresenter.updateBooks(
-                                      widget.author,
-                                      widget.authorid,
-                                      widget.bookcontent,
-                                      bookTitle.text,
-                                      imgUrl,
-                                      bookDescription.text,
-                                      selectedCategory,
-                                      widget.id,
-                                      context);
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) =>
-                                        CustomDialog(
-                                      title: widget.title +
-                                          " book updated successfully",
-                                      description: "Book Updated Successfully",
-                                      buttonText: "Okay",
-                                    ),
-                                  );
-                                },
+                                vertical: 10,
                               ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 20,
-                            ),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10.0, vertical: 10.0),
-                              width: 160.0,
-                              height: 60.0,
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(10.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.delete,
-                                      size: 30,
-                                      color: brown,
-                                    ),
-                                    SizedBox(
-                                      width: 2.0,
-                                    ),
-                                    Text(
-                                      "Delete",
-                                      style: TextStyle(
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold,
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 10.0),
+                                width: 160.0,
+                                height: 60.0,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.update,
+                                        size: 30,
                                         color: brown,
                                       ),
-                                    )
-                                  ],
-                                ),
-                                onTap: () {
-                                  mainPresenter.deleteBooks(widget.id);
-
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) {
-                                        return BooksProfile();
-                                      },
-                                    ),
-                                  );
-
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) =>
-                                        CustomDialog(
-                                          title: widget.title +
-                                              " book deleted successfully",
-                                          description: "Book Deleted Successfully",
-                                          buttonText: "Okay",
+                                      SizedBox(
+                                        width: 2.0,
+                                      ),
+                                      Text(
+                                        "Update",
+                                        style: TextStyle(
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.bold,
+                                          color: brown,
                                         ),
-                                  );
-
-
-
-                                },
+                                      )
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    mainPresenter.updateBooks(
+                                        widget.author,
+                                        widget.authorid,
+                                        widget.bookcontent,
+                                        bookTitle.text,
+                                        imgUrl,
+                                        bookDescription.text,
+                                        selectedCategory,
+                                        widget.id,
+                                        context);
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) =>
+                                          CustomDialog(
+                                        title: widget.title +
+                                            " book updated successfully",
+                                        description: "Book Updated Successfully",
+                                        buttonText: "Okay",
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 10,
+                                horizontal: 20,
+                              ),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 10.0),
+                                width: 160.0,
+                                height: 60.0,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.delete,
+                                        size: 30,
+                                        color: brown,
+                                      ),
+                                      SizedBox(
+                                        width: 2.0,
+                                      ),
+                                      Text(
+                                        "Delete",
+                                        style: TextStyle(
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.bold,
+                                          color: brown,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    mainPresenter.deleteBooks(widget.id);
+
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) {
+                                          return BooksProfile();
+                                        },
+                                      ),
+                                    );
+
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) =>
+                                          CustomDialog(
+                                        title: widget.title +
+                                            " book deleted successfully",
+                                        description: "Book Deleted Successfully",
+                                        buttonText: "Okay",
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -465,7 +496,6 @@ class _AddBookState extends State<AddBook> {
       ),
     );
   }
-
 
   uploadImage() async {
     final _storage = FirebaseStorage.instance;

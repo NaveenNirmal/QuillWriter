@@ -18,7 +18,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   Presenter mainPresenter=Presenter();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   final email = TextEditingController();
 
   final password = TextEditingController();
@@ -88,6 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   TextFormField(
                     controller: password,
+                    obscureText: true,
                     decoration: InputDecoration(
                       labelText: "Password",
                       labelStyle: TextStyle(
@@ -130,17 +131,8 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         child: InkWell(
                           onTap: () async {
-                            final user= await _auth.signInWithEmailAndPassword(email: email.text, password: password.text);
-                            if (user != null) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return MainBookScreen();
-                                  },
-                                ),
-                              );
-                            }
+                            mainPresenter.login(email.text, password.text, context);
+
                           },
 
                           child: Container(

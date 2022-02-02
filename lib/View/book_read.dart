@@ -36,17 +36,22 @@ class _BookReadState extends State<BookRead> {
 
   bool isFavourite=false;
 
+  bool connectioncheck;
+  void checkConnection() async{
+    connectioncheck=await mainPresenter.hasNetwork();
+  }
+
+
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    checkConnection();
     final document=_loadDocument();
 
     _controller=ZefyrController(document);
     _focusNode=FocusNode();
-
     content.text=widget.content;
   }
 
@@ -82,9 +87,15 @@ class _BookReadState extends State<BookRead> {
           Container(
             child: FittedBox(
               fit: BoxFit.fill,
-              child: Image.network(
+              child: (connectioncheck == true)
+                  ? Image.network(
                 widget.imgUrl,
-              ),
+              )
+                  : Image(
+                image: AssetImage(
+                    "assets/images/offlinecover.png"
+                ),
+              )
             ),
           ),
 
@@ -205,16 +216,24 @@ class _BookReadState extends State<BookRead> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              FlatButton.icon(
-                                onPressed: () {},
-                                icon: Icon(
-                                  Icons.menu_book,
-                                ),
-                                label: Text(
-                                  widget.author,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                  ),
+                              Container(
+                                margin: EdgeInsets.only(bottom: 10.0),
+
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.menu_book,
+                                    ),
+                                    SizedBox(
+                                      width: 5.0,
+                                    ),
+                                    Text(
+                                      widget.author,
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],

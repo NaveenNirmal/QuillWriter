@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'package:quilwriterfinal/Models/database.dart';
 import 'package:quilwriterfinal/Styles/colors.dart';
+import 'package:quilwriterfinal/View/books_profile.dart';
+import 'package:quilwriterfinal/View/message.dart';
 import 'package:zefyr/zefyr.dart';
 
 class BookWrite extends StatefulWidget {
@@ -173,7 +175,22 @@ class _BookWriteState extends State<BookWrite> {
                               ),
                               onTap: () {
                                 db.updateBookContent(jsonEncode(_controller.document),widget.bookid);
-
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return BooksProfile();
+                                    },
+                                  ),
+                                );
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) => CustomDialog(
+                                    title: widget.title + " book content updated successfully",
+                                    description: "Book Content Updated Successfully",
+                                    buttonText: "Okay",
+                                  ),
+                                );
                               },
                             ),
                           ),

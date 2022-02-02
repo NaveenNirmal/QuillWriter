@@ -43,7 +43,7 @@ class _quilwriterfinalState extends State<quilwriterfinal> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Quill Writer',
       theme: ThemeData(
         primarySwatch: Colors.amber,
         scaffoldBackgroundColor: Color(0XFFf9f6f2),
